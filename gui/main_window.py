@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QListWidget, QHBoxLayout, QMessageBox, QTextEdit
 )
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QFile, QIODevice
+from PyQt5.QtCore import QFile, QIODevice, QTimer
 from core.tunnel_config import load_server_list, save_server_list
 from core.ssh_manager import SSHManager
 from gui.add_server_dialog import AddServerDialog
@@ -105,6 +105,11 @@ class MainWindow(QMainWindow):
         
         # 초기 로그 메시지
         self.log_message("프로그램이 시작되었습니다.")
+
+        # 연결 상태 확인 타이머 추가
+        self.connection_check_timer = QTimer(self)
+        self.connection_check_timer.timeout.connect(self.check_all_connections)
+        self.connection_check_timer.start(5000)  # 5초마다 확인
 
     def log_message(self, message, level="info"):
         """
@@ -264,3 +269,29 @@ class MainWindow(QMainWindow):
         self.log_message(f"{self.servers[index]['name']} 서버의 SSH 콘솔을 엽니다.", "info")
         dialog = SSHTerminalDialog(self.ssh_managers[index], self)
         dialog.exec_()
+
+    def check_all_connections(self):
+        """
+        모든 연결의 상태를 주기적으로 확인하고 업데이트
+        """
+        disconnected_indices = set()
+        
+        # 각 연결의 상태 확인
+        for index in list(self.connected_indices):
+            if index in self.ssh_managers:
+                ssh_manager = self.ssh_managers[index]
+                if not ssh_manager.is_connected():
+                    disconnected_indices.add(index)
+                    self.log_message(f"{self.servers[index]['name']} 서버 연결이 끊어졌습니다.", "warning")
+        
+        # 끊어진 연결 정리
+        for index in disconnected_indices:
+            if index in self.ssh_managers:
+                self.ssh_managers[index].disconnect()
+                del self.ssh_managers[index]
+            if index in self.connected_indices:
+                self.connected_indices.remove(index)
+        
+        # UI 업데이트
+        if disconnected_indices:
+            self.refresh_server_list()

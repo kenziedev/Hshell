@@ -135,6 +135,18 @@ class SSHManager:
 
     def is_connected(self):
         """
-        현재 연결 상태 반환
+        현재 연결 상태를 더 정확하게 확인
         """
-        return self.client is not None and self.transport and self.transport.is_active()
+        try:
+            if not self.client or not self.transport:
+                return False
+            
+            # 실제로 연결이 살아있는지 확인
+            if not self.transport.is_active():
+                return False
+            
+            # 간단한 명령을 실행해서 연결 상태 테스트
+            self.client.exec_command('echo', timeout=1)
+            return True
+        except:
+            return False

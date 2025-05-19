@@ -108,12 +108,17 @@ class SSHTerminalDialog(QDialog):
         event.accept()
 
     def check_connection(self):
+        """
+        연결 상태 확인 및 재연결 시도
+        """
         if not self.ssh_manager or not self.ssh_manager.is_connected():
             self.output_thread.stop()
-            self.channel.close()
+            if self.channel:
+                self.channel.close()
+                self.channel = None
 
             try:
-                if self.ssh_manager.connect():  # 🔁 재연결 시도
+                if self.ssh_manager.connect():  # 재연결 시도
                     self.channel = self.ssh_manager.client.invoke_shell()
                     self.screen.reset()
                     self.stream = pyte.Stream(self.screen)
@@ -126,9 +131,9 @@ class SSHTerminalDialog(QDialog):
                 else:
                     self.append_system_message("[ 재연결 실패 - 연결 종료 ]\n")
                     self.close()
-
             except Exception as e:
                 self.append_system_message(f"[ 재연결 오류: {e} ]\n")
+                self.close()
 
     def append_system_message(self, message):
         self.text_area.moveCursor(QTextCursor.End)
