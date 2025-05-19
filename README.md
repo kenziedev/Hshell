@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 1. 저장소 클론
 ```bash
-git clone https://github.com/yourusername/Hshell.git
+git clone https://github.com/kenziedev/Hshell.git
 cd Hshell
 ```
 
