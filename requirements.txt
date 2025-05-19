@@ -1,0 +1,21 @@
+ # GUI 관련
+PyQt5>=5.15.9
+PyQt5-Qt5>=5.15.2
+PyQt5-sip>=12.12.2
+
+# SSH 및 보안 관련
+paramiko>=3.3.1
+cryptography>=41.0.0
+bcrypt>=4.0.1
+pyOpenSSL>=23.2.0
+
+# 터미널 에뮬레이션
+pyte>=0.8.1
+
+# 빌드 도구
+pyinstaller>=6.3.0
+pyinstaller-hooks-contrib>=2024.0
+
+# 개발 도구 (선택사항)
+black>=23.12.1  # 코드 포맷팅
+pylint>=3.0.3  # 코드 검사 

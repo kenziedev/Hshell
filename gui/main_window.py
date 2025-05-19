@@ -5,24 +5,18 @@ from PyQt5.QtWidgets import (
     QListWidget, QHBoxLayout, QMessageBox, QTextEdit
 )
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QFile, QIODevice
 from core.tunnel_config import load_server_list, save_server_list
 from core.ssh_manager import SSHManager
 from gui.add_server_dialog import AddServerDialog
 from gui.ssh_terminal_dialog import SSHTerminalDialog  # 🔥 콘솔 다이얼로그 임포트
+from gui.icon_data import get_icon  # 내장된 아이콘 데이터 사용
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        import os, sys
-        def get_icon_path():
-            if getattr(sys, 'frozen', False):
-                # PyInstaller로 패키징된 경우
-                base_path = os.path.dirname(sys.executable)
-            else:
-                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            return os.path.join(base_path, 'image', 'hshell.ico')
-        self.setWindowIcon(QIcon(get_icon_path()))
+        self.setWindowIcon(get_icon())  # 내장된 아이콘 사용
 
         self.ssh_managers = {}  # 서버별 SSH 매니저 저장 {index: SSHManager}
         self.connected_indices = set()  # 연결된 서버 인덱스 집합

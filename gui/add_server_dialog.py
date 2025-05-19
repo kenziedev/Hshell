@@ -5,20 +5,15 @@ from PyQt5.QtWidgets import (
     QFormLayout, QHBoxLayout, QMessageBox, QGroupBox
 )
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QFile, QIODevice
 from core.encryption import encrypt_password  # 🔒 암호화 함수
+from gui.icon_data import get_icon  # 내장된 아이콘 데이터 사용
 
 class AddServerDialog(QDialog):
     def __init__(self, parent=None, existing_data=None):
         super().__init__(parent)
-        import os, sys
-        def get_icon_path():
-            if getattr(sys, 'frozen', False):
-                base_path = os.path.dirname(sys.executable)
-            else:
-                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            return os.path.join(base_path, 'image', 'hshell.ico')
-        self.setWindowIcon(QIcon(get_icon_path()))
-        self.setWindowTitle("서버 추가")
+        self.setWindowTitle("서버 추가" if not existing_data else "서버 수정")
+        self.setWindowIcon(get_icon())  # 내장된 아이콘 사용
         self.setFixedSize(450, 500)
 
         self.server_data = None

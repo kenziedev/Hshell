@@ -2,7 +2,8 @@
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTextEdit
 from PyQt5.QtGui import QFont, QTextCursor, QIcon
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer, QFile, QIODevice
+from gui.icon_data import get_icon  # 내장된 아이콘 데이터 사용
 
 import pyte
 import time
@@ -71,13 +72,7 @@ class SSHTerminalDialog(QDialog):
         self.reconnect_timer.timeout.connect(self.check_connection)
         self.reconnect_timer.start(10000)
 
-        def get_icon_path():
-            if getattr(sys, 'frozen', False):
-                base_path = os.path.dirname(sys.executable)
-            else:
-                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            return os.path.join(base_path, 'image', 'hshell.ico')
-        self.setWindowIcon(QIcon(get_icon_path()))
+        self.setWindowIcon(get_icon())  # 내장된 아이콘 사용
 
     def handle_data(self, data):
         try:
