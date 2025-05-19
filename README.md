@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 ### 실행 파일 다운로드
 
-[릴리즈 페이지](https://github.com/yourusername/Hshell/releases)에서 최신 버전의 실행 파일을 다운로드할 수 있습니다.
+[릴리즈 페이지](https://github.com/kenziedev/Hshell/releases)에서 최신 버전의 실행 파일을 다운로드할 수 있습니다.
 
 ## 개발 환경 설정
 
