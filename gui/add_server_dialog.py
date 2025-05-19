@@ -16,7 +16,8 @@ class AddServerDialog(QDialog):
         self.setWindowIcon(get_icon())  # 내장된 아이콘 사용
         self.setFixedSize(450, 500)
 
-        self.server_data = None
+        # 기존 데이터를 먼저 저장
+        self.server_data = existing_data.copy() if existing_data else None
         self.tunnel_rows = []  # 터널 행 리스트 초기화
 
         # 메인 레이아웃
@@ -29,6 +30,7 @@ class AddServerDialog(QDialog):
         self.port_input = QLineEdit()
         self.username_input = QLineEdit()
         self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText("새 비밀번호를 입력하거나 비워두면 기존 비밀번호가 유지됩니다")
 
         form_layout.addRow("서버 이름", self.name_input)
         form_layout.addRow("IP 주소", self.host_input)
@@ -136,9 +138,21 @@ class AddServerDialog(QDialog):
             port = int(self.port_input.text().strip() or 22)
             username = self.username_input.text().strip()
             raw_password = self.password_input.text().strip()
-            password = encrypt_password(raw_password)  # 🔐 암호화
+            
+            # 비밀번호 처리 로직 수정
+            if raw_password == "********" and self.server_data and "password" in self.server_data:
+                # 기존 비밀번호 유지
+                password = self.server_data["password"]
+            elif not raw_password and self.server_data and "password" in self.server_data:
+                # 비밀번호 필드가 비어있을 때도 기존 비밀번호 유지
+                password = self.server_data["password"]
+            else:
+                # 새로운 비밀번호 입력된 경우
+                if not raw_password:
+                    raise ValueError("비밀번호를 입력해주세요.")
+                password = encrypt_password(raw_password)
 
-            if not name or not host or not username or not raw_password:
+            if not name or not host or not username:
                 raise ValueError("필수 항목이 누락되었습니다.")
 
             tunnels = []
