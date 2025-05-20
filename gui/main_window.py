@@ -2,7 +2,7 @@
 
 from PyQt5.QtWidgets import (
     QDialog, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton,
-    QListWidget, QHBoxLayout, QMessageBox, QTextEdit
+    QListWidget, QHBoxLayout, QMessageBox, QTextEdit, QTabWidget, QSplitter
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QFile, QIODevice, QTimer
@@ -11,6 +11,7 @@ from core.ssh_manager import SSHManager
 from gui.add_server_dialog import AddServerDialog
 from gui.ssh_terminal_dialog import SSHTerminalDialog  # 🔥 콘솔 다이얼로그 임포트
 from gui.icon_data import get_icon  # 내장된 아이콘 데이터 사용
+from gui.ssh_terminal_widget import SSHTerminalWidget  # 추가된 SSHTerminalWidget 임포트
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -60,14 +61,22 @@ class MainWindow(QMainWindow):
 
         left_panel.addLayout(self.button_layout)
         
-        # 오른쪽 패널 (로그 메시지)
+        # 오른쪽 패널 (탭 위젯과 로그)
         right_panel = QVBoxLayout()
+        
+        # 탭 위젯 추가
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setTabsClosable(True)  # 탭 닫기 버튼 활성화
+        self.tab_widget.tabCloseRequested.connect(self.close_ssh_tab)
+        right_panel.addWidget(self.tab_widget, stretch=7)  # 탭 위젯이 더 크게
+        
+        # 로그 메시지 영역
         log_label = QLabel("로그 메시지")
         right_panel.addWidget(log_label)
         
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setMinimumWidth(300)  # 최소 너비 설정
+        self.log_text.setMinimumHeight(150)  # 최소 높이 설정
         self.log_text.setStyleSheet("""
             QTextEdit {
                 background-color: #f5f5f5;
@@ -76,7 +85,7 @@ class MainWindow(QMainWindow):
                 font-size: 9pt;
             }
         """)
-        right_panel.addWidget(self.log_text)
+        right_panel.addWidget(self.log_text, stretch=3)  # 로그 영역은 작게
         
         # 패널들을 메인 레이아웃에 추가
         left_widget = QWidget()
@@ -84,8 +93,8 @@ class MainWindow(QMainWindow):
         right_widget = QWidget()
         right_widget.setLayout(right_panel)
         
-        main_layout.addWidget(left_widget, stretch=7)  # 왼쪽 패널이 더 넓게
-        main_layout.addWidget(right_widget, stretch=3)  # 오른쪽 패널은 좁게
+        main_layout.addWidget(left_widget, stretch=4)  # 왼쪽 패널 비율 조정
+        main_layout.addWidget(right_widget, stretch=6)  # 오른쪽 패널 비율 조정
         
         self.central_widget.setLayout(main_layout)
 
@@ -266,9 +275,26 @@ class MainWindow(QMainWindow):
             self.log_message("먼저 서버에 연결하세요.", "warning")
             return
 
-        self.log_message(f"{self.servers[index]['name']} 서버의 SSH 콘솔을 엽니다.", "info")
-        dialog = SSHTerminalDialog(self.ssh_managers[index], self)
-        dialog.exec_()
+        server_name = self.servers[index]['name']
+        self.log_message(f"{server_name} 서버의 SSH 콘솔을 엽니다.", "info")
+
+        # 이미 열린 탭이 있는지 확인
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == server_name:
+                self.tab_widget.setCurrentIndex(i)
+                return
+
+        # 새 탭 생성
+        terminal = SSHTerminalWidget(self.ssh_managers[index])
+        tab_index = self.tab_widget.addTab(terminal, server_name)
+        self.tab_widget.setCurrentIndex(tab_index)
+
+    def close_ssh_tab(self, index):
+        """SSH 탭을 닫고 연결을 정리합니다."""
+        terminal = self.tab_widget.widget(index)
+        if terminal:
+            terminal.close_connection()
+            self.tab_widget.removeTab(index)
 
     def check_all_connections(self):
         """
