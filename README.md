@@ -1,13 +1,19 @@
 # Hshell
 
-SSH 터미널 및 포트 포워딩을 위한 GUI 도구입니다.
+🌐 SSH 터미널 및 포트 포워딩을 위한 모던한 GUI 도구입니다.
 
 ## 주요 기능
 
-- SSH 서버 연결 관리
-- 포트 포워딩 설정 및 관리
-- 내장 터미널 에뮬레이터
-- 서버 정보 암호화 저장
+- 🔐 SSH 서버 연결 관리
+- 🔗 포트 포워딩 설정 및 관리
+- 💻 내장 터미널 에뮬레이터
+- 🔒 서버 정보 암호화 저장
+- 🎨 **Figma 디자인 시스템 기반 모던 UI**
+  - shadcn/ui 스타일의 일관된 컴포넌트
+  - TailwindCSS 색상 팔레트 적용
+  - 직관적이고 깔끔한 사용자 경험
+- 📊 실시간 연결 상태 모니터링
+- ⚡ 빠르고 반응성 있는 사용자 인터페이스
 
 ## 설치 방법
 
@@ -55,6 +61,31 @@ python -m PyInstaller hshell.spec
 ```
 
 빌드된 파일은 `dist` 디렉토리에 생성됩니다.
+
+### macOS 설치 파일 생성
+
+1. (선택) `image/hshell.icns` 아이콘 준비  
+   - macOS에서는 `.icns` 포맷을 사용합니다. 아이콘이 없다면 아래와 같이 PNG들을 `.iconset`으로 만든 뒤 `iconutil`을 이용해 변환할 수 있습니다.  
+   ```bash
+   mkdir -p image/Hshell.iconset
+   sips -z 16 16   image/hshell.png --out image/Hshell.iconset/icon_16x16.png
+   # ...필요한 해상도 추가...
+   iconutil -c icns image/Hshell.iconset -o image/hshell.icns
+   ```
+   - `.icns`가 없으면 기존 `.ico`가 그대로 사용됩니다.
+2. 스크립트 실행  
+   ```bash
+   chmod +x scripts/build_macos.sh
+   ./scripts/build_macos.sh
+   ```
+3. 결과물 확인  
+   - `dist/Hshell.app`: 더블클릭 가능한 앱 번들  
+   - `dist/Hshell.dmg`: 배포용 디스크 이미지
+4. (선택) 코드 서명 & 공증  
+   ```bash
+   codesign --deep --force --sign "Developer ID Application: YOUR NAME" dist/Hshell.app
+   xcrun notarytool submit dist/Hshell.dmg --wait --apple-id you@example.com --team-id TEAMID --password "app-specific-password"
+   ```
 
 ## 사용 방법
 

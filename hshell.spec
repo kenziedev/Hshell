@@ -1,5 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import sys
+
+ICON_MAC_PATH = 'image/hshell.icns'
+ICON_DEFAULT_PATH = 'image/hshell.ico'
+ICON_FILE = ICON_MAC_PATH if sys.platform == 'darwin' and os.path.exists(ICON_MAC_PATH) else ICON_DEFAULT_PATH
 
 # data 디렉토리가 없으면 생성
 if not os.path.exists('data'):
@@ -47,6 +52,13 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['image/hshell.ico'],
+    icon=[ICON_FILE],
     version='file_version_info.txt',  # 버전 정보 포함
+)
+
+app = BUNDLE(
+    exe,
+    name='Hshell.app',
+    icon=ICON_FILE,
+    bundle_identifier='io.hshell.app',
 )

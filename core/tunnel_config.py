@@ -3,26 +3,8 @@
 
 import json
 import os
-import sys
 
-def get_app_data_dir():
-    """
-    애플리케이션 데이터 디렉토리 경로를 반환합니다.
-    개발 환경에서는 프로젝트 루트의 data 디렉토리를,
-    실행 파일에서는 실행 파일이 있는 디렉토리의 data 디렉토리를 사용합니다.
-    """
-    if getattr(sys, 'frozen', False):
-        # PyInstaller로 패키징된 경우
-        app_dir = os.path.dirname(sys.executable)
-    else:
-        # 개발 환경
-        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    data_dir = os.path.join(app_dir, 'data')
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-    
-    return data_dir
+from core.app_paths import get_app_data_dir
 
 # 서버 목록 파일 경로
 DATA_FILE = os.path.join(get_app_data_dir(), 'servers.json')
